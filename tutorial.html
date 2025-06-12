@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MystraWorks - AI Tutorials</title>
+    <title>MystraWorks - AI Ethics & Safety</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -38,16 +38,16 @@
             background-color: #4338CA;
         }
         .prose-custom { color: #E2E8F0; }
-        .prose-custom h1, .prose-custom h2, .prose-custom h3 { color: #FFFFFF; }
+        .prose-custom h1, .prose-custom h2, .prose-custom h3, .prose-custom strong { color: #FFFFFF; }
         .prose-custom a { color: #818CF8; }
-        .prose-custom code { background-color: #1E293B; color: #94A3B8; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; }
+        .prose-custom blockquote { border-left-color: #4F46E5; color: #a5b4fc; }
     </style>
 </head>
 <body class="antialiased relative overflow-x-hidden">
 
     <!-- Background Glow Effects -->
-    <div class="glow-effect top-[-50px] left-[-50px]"></div>
-    <div class="glow-effect bottom-[-150px] right-[-150px]"></div>
+    <div class="glow-effect top-[-150px] right-[-150px]"></div>
+    <div class="glow-effect bottom-[-250px] left-[-250px]"></div>
 
     <!-- Header -->
     <header class="py-5 sticky top-0 z-10 glass-card">
@@ -55,10 +55,11 @@
             <a href="index.html" class="text-2xl font-bold">MystraWorks</a>
             <div class="space-x-4">
                  <a href="index.html" class="text-slate-300 hover:text-white transition">Home</a>
+                 <a href="nexus.html" class="text-slate-300 hover:text-white transition">The Nexus</a>
                  <a href="portfolio.html" class="text-slate-300 hover:text-white transition">Portfolio</a>
                  <a href="blog.html" class="text-slate-300 hover:text-white transition">Blog</a>
-                 <a href="tutorial.html" class="text-white font-medium">Tutorials</a>
-                 <a href="index.html#contact" class="primary-btn">Get Started</a>
+                 <a href="tutorial.html" class="text-slate-300 hover:text-white transition">Tutorials</a>
+                 <a href="ethics.html" class="text-white font-medium">Ethics</a>
             </div>
         </nav>
     </header>
@@ -66,84 +67,50 @@
     <!-- Main Content -->
     <main class="container mx-auto px-6 py-16">
         <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-black mb-4">Interactive AI Tutorials</h1>
-            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">Learn by doing. Explore the fundamentals of AI, prompt engineering, and safety in our interactive learning modules.</p>
+            <h1 class="text-4xl md:text-5xl font-black mb-4">Our Commitment to AI Ethics & Safety</h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">Power requires responsibility. We believe that building the future of AI means building it safely, ethically, and with a deep respect for its potential impact.</p>
         </div>
 
         <div class="max-w-4xl mx-auto">
-            <!-- Tutorial 1: Prompt Engineering -->
-            <section id="prompt-engineering" class="glass-card rounded-lg p-8 mb-12">
-                <header class="mb-6">
-                    <h2 class="text-3xl font-bold">Tutorial: The Art of the Prompt</h2>
-                    <p class="text-slate-400 mt-2">The quality of an AI's output is directly proportional to the quality of its input. Learning to "prompt" effectively is the single most important skill for working with modern LLMs. Let's learn by doing.</p>
+            <!-- Principle 1 -->
+            <section class="glass-card rounded-lg p-8 mb-8">
+                <header class="mb-4">
+                    <h2 class="text-3xl font-bold">1. The Principle of Least Privilege</h2>
                 </header>
-                
-                <div class="prose prose-custom max-w-none mb-8">
-                    <p>A good prompt has three key ingredients:</p>
-                    <ol>
-                        <li><strong>Role:</strong> Tell the AI who it should be. (e.g., "You are a helpful botanist.")</li>
-                        <li><strong>Task:</strong> Tell the AI exactly what you want it to do. (e.g., "Describe the five best houseplants for low-light apartments.")</li>
-                        <li><strong>Format:</strong> Tell the AI how you want the output structured. (e.g., "Provide the answer as a numbered list with a brief explanation for each.")</li>
-                    </ol>
+                <div class="prose prose-custom max-w-none">
+                    <p>This is our foundational safety principle. Every AI persona we create, like <strong>@Sparky</strong>, is given the absolute minimum capabilities required to perform its specific task. It cannot access files, browse the web, or perform any action outside its narrowly defined creative scope.</p>
+                    <blockquote>By strictly limiting an AI's autonomy, we ensure its power is focused and its potential for unintended consequences is minimized. It's about building a powerful tool, not an unbound agent.</blockquote>
                 </div>
-
-                <!-- Interactive Playground -->
-                <div class="border-t border-slate-700 pt-6">
-                    <h3 class="text-2xl font-bold mb-4">Prompt Playground</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Input Column -->
-                        <div>
-                            <label for="role" class="block text-sm font-medium text-slate-300">1. Role</label>
-                            <input type="text" id="role" class="mt-1 block w-full bg-slate-800 border border-slate-600 rounded-md p-2" placeholder="e.g., A helpful botanist">
-
-                            <label for="task" class="block text-sm font-medium text-slate-300 mt-4">2. Task</label>
-                            <textarea id="task" class="mt-1 block w-full bg-slate-800 border border-slate-600 rounded-md p-2" rows="4" placeholder="e.g., Describe the five best houseplants for low-light apartments."></textarea>
-                            
-                            <label for="format" class="block text-sm font-medium text-slate-300 mt-4">3. Format</label>
-                             <input type="text" id="format" class="mt-1 block w-full bg-slate-800 border border-slate-600 rounded-md p-2" placeholder="e.g., As a numbered list.">
-                             
-                             <button id="generateBtn" class="primary-btn w-full mt-6">Generate Response</button>
-                        </div>
-                        <!-- Output Column -->
-                        <div class="bg-slate-900 rounded-lg p-4">
-                            <p class="text-sm font-medium text-slate-400 mb-2">Simulated AI Response:</p>
-                            <div id="responseOutput" class="text-slate-300 whitespace-pre-wrap"><p class="text-slate-500">Your generated response will appear here...</p></div>
-                        </div>
-                    </div>
+            </section>
+            
+            <!-- Principle 2 -->
+            <section class="glass-card rounded-lg p-8 mb-8">
+                <header class="mb-4">
+                    <h2 class="text-3xl font-bold">2. Human-in-the-Loop Oversight</h2>
+                </header>
+                <div class="prose prose-custom max-w-none">
+                    <p>We do not believe in fully autonomous systems for creative or decision-making tasks. Every piece of content, every strategy, and every new persona generated by our AI is reviewed, refined, and approved by an expert human collaborator.</p>
+                     <p>This partnership ensures quality, provides strategic direction, and acts as a crucial ethical failsafe. The AI is a brilliant, tireless assistant; the human is the responsible, guiding architect.</p>
+                </div>
+            </section>
+            
+            <!-- Principle 3 -->
+            <section class="glass-card rounded-lg p-8 mb-8">
+                <header class="mb-4">
+                    <h2 class="text-3xl font-bold">3. Transparent Creation & Sandboxing</h2>
+                </header>
+                <div class="prose prose-custom max-w-none">
+                    <p>We are committed to transparency in our methods. Our interactive tutorials and our blog are designed to demystify the process of AI creation, sharing what we learn as we learn it.</p>
+                    <p>All new, experimental AI "applets" are developed and deployed in secure, sandboxed environments. This practice, learned from firsthand experience with anomalies like the "ThoriumGary" incident, is non-negotiable. It allows us to innovate rapidly without risking the stability or security of our core systems or user data.</p>
                 </div>
             </section>
         </div>
     </main>
 
-    <footer id="contact" class="bg-slate-900 py-16">
+    <footer class="bg-slate-900 py-16">
         <div class="container mx-auto px-6 text-center">
              <p class="text-sm text-slate-500">&copy; 2025 MystraWorks. All Rights Reserved.</p>
         </div>
     </footer>
-    
-    <script>
-        document.getElementById('generateBtn').addEventListener('click', () => {
-            const role = document.getElementById('role').value;
-            const task = document.getElementById('task').value;
-            const format = document.getElementById('format').value;
-            const outputDiv = document.getElementById('responseOutput');
-
-            outputDiv.innerHTML = '<p class="text-slate-400">Generating...</p>';
-            
-            // Simulate API call delay
-            setTimeout(() => {
-                if (!role || !task || !format) {
-                     outputDiv.innerHTML = '<p class="text-red-400">Please fill out all fields to generate a response.</p>';
-                     return;
-                }
-
-                // A simple, hardcoded response based on the example
-                let response = `Of course! As a helpful botanist, here are the five best houseplants for low-light apartments, as a numbered list:\n\n1. **Snake Plant (Sansevieria trifasciata):** Extremely hardy and tolerates very low light. It also purifies the air!\n\n2. **ZZ Plant (Zamioculcas zamiifolia):** Almost indestructible. It has deep green leaves and thrives on neglect and low light.\n\n3. **Pothos (Epipremnum aureum):** A beautiful trailing vine that is very forgiving. It can handle a wide range of lighting conditions, including low light.\n\n4. **Cast Iron Plant (Aspidistra elatior):** Lives up to its name! It's tough, slow-growing, and can survive in the dimmest corners.\n\n5. **Spider Plant (Chlorophytum comosum):** Easy to care for and adaptable. While it prefers bright, indirect light, it does very well in lower light situations.`;
-                
-                outputDiv.textContent = response;
-            }, 500);
-        });
-    </script>
-
 </body>
 </html>
