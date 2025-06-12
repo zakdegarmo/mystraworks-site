@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to MystraWorks</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>MystraWorks</title>
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
-            font-family: 'Inter', sans-serif;
             background-color: #000;
         }
         #video-background {
@@ -21,7 +18,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
+            z-index: 1;
             pointer-events: none;
             overflow: hidden;
         }
@@ -32,73 +29,76 @@
             width: 100vw;
             height: 56.25vw; /* 16:9 aspect ratio */
             min-height: 100vh;
-            min-width: 177.77vh; /* 16:9 aspect ratio */
+            min-width: 177.77vh; /* 16:9 aspect ratio for vertical coverage */
             transform: translate(-50%, -50%);
-        }
-        #content-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(11, 17, 32, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            color: white;
-            cursor: pointer;
-            transition: opacity 1s ease-out;
-        }
-        #content-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
     <div id="video-background">
-        <!-- 
-            YOUTUBE EMBED
-            This iframe embeds the YouTube video as a background. The parameters in the URL
-            make it behave like a background video.
-        -->
-        <iframe
-            id="youtube-player"
-            src="https://www.youtube.com/embed/oTJQCWrQt8E?autoplay=1&mute=1&controls=0&loop=1&playlist=oTJQCWrQt8E&showinfo=0&modestbranding=1&iv_load_policy=3&enablejsapi=1"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-        ></iframe>
+        <!-- This div will be replaced by the YouTube iframe -->
+        <div id="youtube-player"></div>
     </div>
-
-    <div id="content-overlay">
-        <h1 class="text-5xl md:text-8xl font-black mb-4 animate-pulse">MystraWorks</h1>
-        <p class="text-lg md:text-2xl text-slate-300">Click anywhere to enter the Weave.</p>
-    </div>
-
+    
     <script>
-        const contentOverlay = document.getElementById('content-overlay');
-        
-        // This function is triggered ONCE by the first user click.
-        function startExperience() {
-            // Remove the listener so this can't be triggered again.
-            contentOverlay.removeEventListener('click', startExperience);
+        // 1. This code loads the YouTube IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            // Hide the overlay to fully reveal the video playing in the background.
-            contentOverlay.classList.add('hidden');
-            
-            // Redirect to the homepage after a delay. The video will continue playing.
-            setTimeout(() => {
-                // Using ./ makes the path relative, which is robust for local and deployed servers.
-                window.location.href = './MystraWorksHomePage.html';
-            }, 5000); // 5-second delay before redirect.
+        var player;
+        const videoId = 'oTJQCWrQt8E'; // The ID of the YouTube video
+
+        // 2. This function creates the YouTube player after the API code downloads.
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                videoId: videoId,
+                playerVars: {
+                    autoplay: 1,        // Autoplay the video
+                    controls: 0,        // Hide player controls
+                    showinfo: 0,        // Hide video title
+                    modestbranding: 1,  // Reduce YouTube logo
+                    loop: 1,            // Loop the video
+                    playlist: videoId,  // The video ID must be in the playlist for loop to work
+                    fs: 0,              // Disable fullscreen button
+                    iv_load_policy: 3,  // Hide annotations
+                    mute: 1,            // Mute the video (REQUIRED for autoplay)
+                    start: 9            // Start 9 seconds into the video
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
         }
 
-        // Wait for the user to click anywhere on the overlay to begin.
-        contentOverlay.addEventListener('click', startExperience);
+        // 3. The API calls this function when the video player is ready.
+        function onPlayerReady(event) {
+            // The video will start playing automatically due to the 'autoplay: 1' parameter.
+            console.log("Player is ready and video is playing.");
+        }
+
+        let hasRedirected = false;
+        // 4. This function handles the redirect after a set time.
+        function onPlayerStateChange(event) {
+            // Player.PlayerState.PLAYING equals 1.
+            // We only want to set the timer once, when the video first starts.
+            if (event.data == YT.PlayerState.PLAYING && !hasRedirected) {
+                console.log("Video playback has begun. Starting redirect timer.");
+                // Set the timeout to redirect to the main site after the intro duration.
+                setTimeout(switchToMainSite, 8000); // 9-second duration
+                hasRedirected = true; // Prevents the timer from being set again.
+            }
+        }
+
+        // 5. This function handles the final switch to your main content page.
+        function switchToMainSite() {
+            console.log("Redirecting to homepage...");
+            // Using a relative path is the most reliable way.
+            window.location.href = 'MystraWorksHomePage.html';
+        }
     </script>
 
 </body>
