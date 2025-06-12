@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MystraWorks - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B1120;
+            color: #E2E8F0;
+            /* Add padding to the bottom to prevent footer from overlapping content */
+            padding-bottom: 250px; 
+        }
+        .kanban-column {
+            background: rgba(23, 29, 45, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            height: fit-content;
+            min-height: 200px; /* Ensure columns have a minimum height */
+        }
+        .kanban-card {
+            background-color: #1E293B;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left-width: 4px;
+            cursor: grab;
+        }
+        .status-complete { border-color: #10B981; } /* Green */
+        .status-inprogress { border-color: #F59E0B; } /* Amber */
+        .status-next { border-color: #3B82F6; }     /* Blue */
+
+        .drop-zone-active {
+            border: 2px dashed #4F46E5;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .task-tree ul {
+            padding-left: 1rem;
+        }
+        .task-tree li {
+            cursor: pointer;
+        }
+        .task-tree .toggle::before {
+            content: '▸ ';
+            transition: transform 0.2s ease;
+        }
+        .task-tree .toggle.open::before {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="antialiased p-4 md:p-8">
+
+    <header class="mb-8">
+        <h1 class="text-4xl font-black">Project Roadmap: The Path to MystraNet</h1>
+        <p class="text-slate-400">Your personal command center for tracking our progress.</p>
+    </header>
+
+    <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="kanban-board">
+
+        <!-- Phase 1 Column -->
+        <div class="kanban-column" data-column-id="1">
+            <h2 class="text-xl font-bold mb-4">Phase 1: Foundation</h2>
+            <div class="kanban-card status-complete" draggable="true">
+                <h3 class="font-bold">Finalize Website</h3>
+                <p class="text-sm text-slate-300">All 7 pages built and live on GitHub Pages.</p>
+            </div>
+            <div class="kanban-card status-next" draggable="true">
+                <h3 class="font-bold">Create Demo Video</h3>
+                <p class="text-sm text-slate-300">Record OBS session of site creation, add VO.</p>
+            </div>
+             <div class="kanban-card status-next" draggable="true">
+                <h3 class="font-bold">Write Content</h3>
+                <p class="text-sm text-slate-300">Populate Portfolio and Blog with initial white papers and posts.</p>
+            </div>
+        </div>
+
+        <!-- Phase 2 Column -->
+        <div class="kanban-column" data-column-id="2">
+            <h2 class="text-xl font-bold mb-4">Phase 2: First Mephit</h2>
+            <div class="kanban-card status-next" draggable="true">
+                <h3 class="font-bold">Build @Courier Backend</h3>
+                <p class="text-sm text-slate-300">Create serverless function to handle contact form submissions.</p>
+            </div>
+        </div>
+
+        <!-- Phase 3 Column -->
+        <div class="kanban-column" data-column-id="3">
+            <h2 class="text-xl font-bold mb-4">Phase 3: Unification</h2>
+            <div class="kanban-card status-next" draggable="true">
+                <h3 class="font-bold">Nexus 2.0 Redesign</h3>
+                <p class="text-sm text-slate-300">Rebuild desktop UI using MystraWorks design language.</p>
+            </div>
+        </div>
+        
+        <!-- Phase 4 Column -->
+        <div class="kanban-column" data-column-id="4">
+            <h2 class="text-xl font-bold mb-4">Phase 4: The Vision</h2>
+            <div class="kanban-card status-next" draggable="true">
+                <h3 class="font-bold">Implement User Logins</h3>
+                <p class="text-sm text-slate-300">Add secure authentication to MystraWorks site.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Fixed Footer Dashboard -->
+    <footer class="fixed bottom-0 left-0 right-0 h-[240px] bg-[#0B1120]/80 backdrop-blur-md border-t border-slate-700 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-8 gap-4 h-full">
+            <!-- Sticky Note Section (Left) -->
+            <div class="md:col-span-2 bg-slate-800/50 p-4 rounded-lg flex flex-col">
+                <h3 class="font-bold text-lg mb-2">Sticky Note Forge</h3>
+                <textarea id="sticky-note-input" class="w-full flex-grow bg-slate-900 border border-slate-600 rounded-md p-2 text-sm" placeholder="Jot down an idea..."></textarea>
+                <div id="dragger" draggable="true" class="mt-2 text-center text-slate-400 cursor-grab active:cursor-grabbing">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/><path d="M15 19l-3 3-3-3"/><path d="M19 9l3 3-3 3"/><path d="M2 12h20"/><path d="M12 2v20"/></svg>
+                    Drag Me
+                </div>
+            </div>
+
+            <!-- NexusNews Section (Center) -->
+            <div class="md:col-span-3 bg-slate-800/50 p-4 rounded-lg">
+                <h3 class="font-bold text-lg mb-2">NexusNews Feed</h3>
+                <div class="text-sm text-slate-300 space-y-2">
+                    <p><span class="font-bold text-green-400">[COMPLETE]</span> MystraWorks v1 site deployed.</p>
+                    <p><span class="font-bold text-amber-400">[IN PROGRESS]</span> Building Admin Dashboard v2.</p>
+                    <p><span class="font-bold text-blue-400">[NEXT UP]</span> Create OBS demo video.</p>
+                </div>
+            </div>
+
+            <!-- Task List Section (Right) -->
+            <div class="md:col-span-3 bg-slate-800/50 p-4 rounded-lg flex flex-col">
+                <h3 class="font-bold text-lg mb-2">Master Task List</h3>
+                <div id="task-tree" class="task-tree text-sm overflow-y-auto flex-grow pr-2">
+                    <ul>
+                        <li><span class="toggle open">Website</span>
+                            <ul class="sub-task">
+                                <li>Create Demo Video</li>
+                                <li>Write White Papers</li>
+                                <li>Populate Blog</li>
+                            </ul>
+                        </li>
+                        <li><span class="toggle">Mephits</span>
+                             <ul class="sub-task hidden">
+                                <li>@Courier (Contact Form)</li>
+                                <li>Lawnmowing App</li>
+                                <li>Mephit Mail (Jobs)</li>
+                            </ul>
+                        </li>
+                        <li><span class="toggle">Nexus OS</span>
+                             <ul class="sub-task hidden">
+                                <li>UI Redesign (v2)</li>
+                                <li>NLD Framework (.mthsphy)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Drag and Drop Logic ---
+        const dragger = document.getElementById('dragger');
+        const columns = document.querySelectorAll('.kanban-column');
+        const stickyInput = document.getElementById('sticky-note-input');
+
+        dragger.addEventListener('dragstart', (e) => {
+            const noteText = stickyInput.value;
+            if (noteText.trim() === '') {
+                e.preventDefault();
+                return;
+            }
+            e.dataTransfer.setData('text/plain', noteText);
+        });
+        
+        columns.forEach(column => {
+            column.addEventListener('dragover', e => {
+                e.preventDefault();
+                column.classList.add('drop-zone-active');
+            });
+
+            column.addEventListener('dragleave', () => {
+                column.classList.remove('drop-zone-active');
+            });
+
+            column.addEventListener('drop', e => {
+                e.preventDefault();
+                column.classList.remove('drop-zone-active');
+                const noteText = e.dataTransfer.getData('text/plain');
+                
+                const newCard = document.createElement('div');
+                newCard.className = 'kanban-card status-next';
+                newCard.setAttribute('draggable', 'true');
+                
+                const cardTitle = document.createElement('h3');
+                cardTitle.className = 'font-bold';
+                cardTitle.textContent = noteText;
+                
+                newCard.appendChild(cardTitle);
+                column.appendChild(newCard);
+
+                // Clear the input after drop
+                stickyInput.value = '';
+            });
+        });
+
+        // --- Collapsible Task List Logic ---
+        const toggles = document.querySelectorAll('.task-tree .toggle');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('open');
+                const sublist = toggle.nextElementSibling;
+                if (sublist && sublist.tagName === 'UL') {
+                    sublist.classList.toggle('hidden');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
