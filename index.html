@@ -15,18 +15,25 @@
             font-family: 'Inter', sans-serif;
             background-color: #000;
         }
-        #video-container {
+        #video-background {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
         }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        #youtube-player {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 56.25vw; /* 16:9 aspect ratio */
+            min-height: 100vh;
+            min-width: 177.77vh; /* 16:9 aspect ratio */
+            transform: translate(-50%, -50%);
         }
         #content-overlay {
             position: absolute;
@@ -52,13 +59,19 @@
 </head>
 <body>
 
-    <div id="video-container">
-        <!-- CHANGE 1: The first video's source is now directly in the HTML. -->
-        <!-- This lets the browser start loading it immediately. -->
-        <video id="current-video" muted playsinline>
-            <source src="videos/video1.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+    <div id="video-background">
+        <!-- 
+            YOUTUBE EMBED
+            This iframe embeds the YouTube video as a background. The parameters in the URL
+            make it behave like a background video.
+        -->
+        <iframe
+            id="youtube-player"
+            src="https://www.youtube.com/embed/oTJQCWrQt8E?autoplay=1&mute=1&controls=0&loop=1&playlist=oTJQCWrQt8E&showinfo=0&modestbranding=1&iv_load_policy=3&enablejsapi=1"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+        ></iframe>
     </div>
 
     <div id="content-overlay">
@@ -67,40 +80,24 @@
     </div>
 
     <script>
-        const videoPlayer = document.getElementById('current-video');
         const contentOverlay = document.getElementById('content-overlay');
         
-        const videoPlaylist = [
-            'videos/video1.mp4', 
-            'videos/video2.mp4'  
-        ];
-        let currentVideoIndex = 0;
-
-        function playNextVideo() {
-            currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
-            videoPlayer.src = videoPlaylist[currentVideoIndex];
-            videoPlayer.load();
-            videoPlayer.play().catch(error => console.error("Error playing next video:", error));
-        }
-
-        videoPlayer.addEventListener('ended', playNextVideo);
-
-        // CHANGE 2: The startExperience function is now much simpler.
+        // This function is triggered ONCE by the first user click.
         function startExperience() {
+            // Remove the listener so this can't be triggered again.
             contentOverlay.removeEventListener('click', startExperience);
-            contentOverlay.classList.add('hidden');
 
-            // All we do is tell the already-loaded video to play.
-            videoPlayer.play().catch(error => {
-                console.error("Initial playback failed:", error);
-            });
+            // Hide the overlay to fully reveal the video playing in the background.
+            contentOverlay.classList.add('hidden');
             
-            // The redirect timer remains the same.
+            // Redirect to the homepage after a delay. The video will continue playing.
             setTimeout(() => {
+                // Using ./ makes the path relative, which is robust for local and deployed servers.
                 window.location.href = './MystraWorksHomePage.html';
-            }, 8000); 
+            }, 5000); // 5-second delay before redirect.
         }
 
+        // Wait for the user to click anywhere on the overlay to begin.
         contentOverlay.addEventListener('click', startExperience);
     </script>
 
