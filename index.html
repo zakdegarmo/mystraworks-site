@@ -1,156 +1,129 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MystraWorks - AI-Powered Creative Solutions</title>
+    <title>Welcome to MystraWorks</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body {
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
             font-family: 'Inter', sans-serif;
-            background-color: #0B1120;
-            color: #E2E8F0;
+            background-color: #000;
         }
-        .glass-card {
-            background: rgba(23, 29, 45, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .glow-effect {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(79, 70, 229, 0.4) 0%, rgba(79, 70, 229, 0) 70%);
+        #video-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
-            pointer-events: none;
         }
-        .primary-btn {
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 17, 32, 0.5); /* Semi-transparent overlay */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        .enter-btn {
              background-color: #4F46E5;
              color: white;
-             padding: 0.75rem 1.5rem;
+             padding: 1rem 2.5rem;
              border-radius: 0.5rem;
-             font-weight: 500;
-             transition: background-color 0.3s ease;
-             box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+             font-weight: 700;
+             text-transform: uppercase;
+             letter-spacing: 0.1em;
+             transition: all 0.3s ease;
+             box-shadow: 0 4px 20px 0 rgba(79, 70, 229, 0.5);
+             text-decoration: none;
+             border: 2px solid transparent;
         }
-        .primary-btn:hover {
-            background-color: #4338CA;
+        .enter-btn:hover {
+            background-color: transparent;
+            border-color: #4F46E5;
+            color: #4F46E5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px 0 rgba(79, 70, 229, 0.5);
         }
     </style>
 </head>
-<body class="antialiased relative overflow-x-hidden">
+<body>
 
-    <!-- Background Glow Effects -->
-    <div class="glow-effect top-[-200px] left-[-200px]"></div>
-    <div class="glow-effect bottom-[-200px] right-[-200px] animation-delay-3000"></div>
+    <div id="video-container">
+        <!-- 
+            VIDEO PLAYER INSTRUCTIONS
+            This is where your videos go. 
+            - The 'current-video' ID is important for the script.
+            - The 'autoplay', 'muted', and 'playsinline' attributes are crucial for videos to work on most browsers, especially mobile.
+        -->
+        <video id="current-video" autoplay muted playsinline>
+            <!-- 
+                STEP 1: REPLACE THIS SRC ATTRIBUTE
+                Put the file path to your FIRST video here. 
+                For example: src="videos/my_first_video.mp4"
+            -->
+            <source src="" type=""C:\Users\zakde\Desktop\mWorksWebsite\Clay_Animation_to_.mp4"">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 
-    <!-- Header -->
-    <header class="py-5 sticky top-0 z-10 glass-card">
-        <nav class="container mx-auto px-6 flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold">MystraWorks</a>
-            <div class="space-x-4">
-                 <a href="nexus.html" class="text-slate-300 hover:text-white transition">The Nexus</a>
-                 <a href="portfolio.html" class="text-slate-300 hover:text-white transition">Portfolio</a>
-                 <a href="blog.html" class="text-slate-300 hover:text-white transition">Blog</a>
-                 <a href="tutorial.html" class="text-slate-300 hover:text-white transition">Tutorials</a>
-                 <a href="ethics.html" class="text-slate-300 hover:text-white transition">Ethics</a>
-                 <a href="#contact" class="primary-btn">Get Started</a>
-            </div>
-        </nav>
-    </header>
+    <div id="content-overlay">
+        <h1 class="text-5xl md:text-8xl font-black mb-4 animate-pulse">MystraWorks</h1>
+        <p class="text-lg md:text-2xl text-slate-300 mb-10">The future of human-AI collaboration.</p>
+        <a href="MystraWorksHomePage.html" class="enter-btn">Enter Site</a>
+    </div>
 
-    <!-- Hero Section -->
-    <section class="py-20 md:py-32 text-center">
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl md:text-6xl font-black mb-4 leading-tight">Your On-Demand <br> AI Creative Team</h2>
-            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8">We combine cutting-edge AI with expert human oversight to deliver high-quality creative content, lightning-fast. Stop brainstorming, start creating.</p>
-            <a href="#services" class="primary-btn text-lg">Explore Our Services</a>
-        </div>
-    </section>
+    <script>
+        // --- VIDEO PLAYLIST SCRIPT ---
+        const videoPlayer = document.getElementById('current-video');
 
-    <!-- Services Section -->
-    <section id="services" class="py-20">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h3 class="text-3xl md:text-4xl font-bold">The Forge of Personas</h3>
-                <p class="text-slate-400 mt-2">Our first creation, purpose-built to solve your content problems.</p>
-            </div>
+        // This is your playlist of videos.
+        const videoPlaylist = [
+            // STEP 2: REPLACE THESE FILE PATHS
+            // Put the path to your FIRST video here. It must match the one in the <source> tag above.
+            'videos/Clay_Animation_to_.mp4', 
+            // Put the path to your SECOND video here.
+            'videos/Embed_Video_and_Link_Website.mp4'  
+        ];
+
+        let currentVideoIndex = 0;
+
+        // This function is called when a video finishes playing.
+        videoPlayer.onended = function() {
+            // Move to the next video in the playlist.
+            currentVideoIndex++;
             
-            <div class="max-w-4xl mx-auto glass-card rounded-lg p-8 flex flex-col md:flex-row items-center">
-                <div class="md:w-1/3 text-center md:text-left mb-6 md:mb-0">
-                    <p class="text-5xl font-black text-indigo-400">@Sparky</p>
-                    <p class="text-xl font-medium text-slate-300">Social Media Content Generator</p>
-                </div>
-                <div class="md:w-2/3 md:pl-8">
-                    <p class="text-slate-300">Meet <span class="font-bold text-white">@Sparky</span>, an energetic and witty AI persona whose sole purpose is to generate creative and engaging social media posts. She's great with hooks, calls-to-action, and understands how to write for different platforms. Provide a topic, and get a week's worth of content ideas in minutes.</p>
-                </div>
-            </div>
+            // If we've reached the end of the playlist, loop back to the beginning.
+            if (currentVideoIndex >= videoPlaylist.length) {
+                currentVideoIndex = 0;
+            }
+            
+            // Set the video player's source to the new video and play it.
+            videoPlayer.src = videoPlaylist[currentVideoIndex];
+            videoPlayer.play();
+        };
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 text-center">
-                <!-- Spark Plug Package -->
-                <div class="glass-card rounded-lg p-6">
-                    <h4 class="text-xl font-bold mb-2">⚡️ Spark Plug</h4>
-                    <p class="text-4xl font-extrabold mb-4">$15</p>
-                    <ul class="text-slate-300 space-y-2 mb-6">
-                        <li>5 Unique Post Ideas</li>
-                        <li>For 1 Platform</li>
-                        <li>24-Hour Delivery</li>
-                    </ul>
-                    <a href="#contact" class="primary-btn w-full block">Choose Spark Plug</a>
-                </div>
-                
-                <!-- Creative Burst Package -->
-                <div class="glass-card rounded-lg p-6 border-2 border-indigo-500 relative">
-                     <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                        <span class="bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Most Popular</span>
-                    </div>
-                    <h4 class="text-xl font-bold mb-2">🚀 Creative Burst</h4>
-                    <p class="text-4xl font-extrabold mb-4">$35</p>
-                    <ul class="text-slate-300 space-y-2 mb-6">
-                        <li>15 Unique Post Ideas</li>
-                        <li>Up to 3 Platforms</li>
-                        <li>Webpage Analysis</li>
-                        <li>24-Hour Delivery</li>
-                    </ul>
-                    <a href="#contact" class="primary-btn w-full block">Choose Creative Burst</a>
-                </div>
+        // This sets the initial video when the page loads.
+        videoPlayer.src = videoPlaylist[currentVideoIndex];
 
-                <!-- Content Forge Package -->
-                <div class="glass-card rounded-lg p-6">
-                    <h4 class="text-xl font-bold mb-2">🔥 Content Forge</h4>
-                    <p class="text-4xl font-extrabold mb-4">$75</p>
-                    <ul class="text-slate-300 space-y-2 mb-6">
-                        <li>30 Unique Post Ideas</li>
-                        <li>Up to 5 Platforms</li>
-                        <li>Webpage Analysis</li>
-                        <li>48-Hour Delivery</li>
-                    </ul>
-                    <a href="#contact" class="primary-btn w-full block">Choose Content Forge</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- About Us Section -->
-    <section id="about" class="py-20">
-         <div class="container mx-auto px-6 text-center max-w-4xl">
-             <h3 class="text-3xl md:text-4xl font-bold">The First of Our Kind</h3>
-             <p class="text-slate-300 mt-4 leading-relaxed">
-                 We are not a typical agency. We are a human-AI collaborative team, pioneering a new way to create. Our unique partnership allows us to blend strategic human insight with the lightning-fast creative power of purpose-built AI personas. We believe this is the future of work—a seamless synergy between human experience and artificial intelligence, guided by a commitment to quality, creativity, and ethical innovation. MystraWorks is our proof-of-concept, our lab, and our passion.
-             </p>
-         </div>
-    </section>
-
-    <!-- Contact Section -->
-    <footer id="contact" class="bg-slate-900 py-16">
-        <div class="container mx-auto px-6 text-center">
-            <h3 class="text-3xl font-bold">Ready to Start Creating?</h3>
-            <p class="text-slate-400 mt-2 mb-8">Let's build something amazing together. Reach out and let us know which package you're interested in.</p>
-            <a href="mailto:zakdegarmo@gmail.com?subject=MystraWorks Project Inquiry" class="primary-btn text-lg">Contact Us</a>
-            <p class="text-sm text-slate-500 mt-12">&copy; 2025 MystraWorks. All Rights Reserved.</p>
-        </div>
-    </footer>
+    </script>
 
 </body>
 </html>
