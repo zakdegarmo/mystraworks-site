@@ -34,92 +34,74 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(11, 17, 32, 0.5); /* Semi-transparent overlay */
+            background: rgba(11, 17, 32, 0.7);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             color: white;
+            cursor: pointer;
+            transition: opacity 1s ease-out;
         }
-        .enter-btn {
-             background-color: #4F46E5;
-             color: white;
-             padding: 1rem 2.5rem;
-             border-radius: 0.5rem;
-             font-weight: 700;
-             text-transform: uppercase;
-             letter-spacing: 0.1em;
-             transition: all 0.3s ease;
-             box-shadow: 0 4px 20px 0 rgba(79, 70, 229, 0.5);
-             text-decoration: none;
-             border: 2px solid transparent;
-        }
-        .enter-btn:hover {
-            background-color: transparent;
-            border-color: #4F46E5;
-            color: #4F46E5;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px 0 rgba(79, 70, 229, 0.5);
+        #content-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
     <div id="video-container">
-        <!-- 
-            VIDEO PLAYER INSTRUCTIONS
-            This is where your videos go. 
-            - The 'current-video' ID is important for the script.
-            - The 'autoplay', 'muted', and 'playsinline' attributes are crucial for videos to work on most browsers, especially mobile.
-        -->
-        <video id="current-video" autoplay muted playsinline>
-            <!-- 
-                STEP 1: REPLACE THIS SRC ATTRIBUTE
-                Put the file path to your FIRST video here. 
-                For example: src="videos/my_first_video.mp4"
-            -->
-		<source src="videos/video1.mp4" type="video/mp4">
+        <!-- CHANGE 1: The first video's source is now directly in the HTML. -->
+        <!-- This lets the browser start loading it immediately. -->
+        <video id="current-video" muted playsinline>
+            <source src="videos/video1.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
     </div>
 
     <div id="content-overlay">
         <h1 class="text-5xl md:text-8xl font-black mb-4 animate-pulse">MystraWorks</h1>
-        <p class="text-lg md:text-2xl text-slate-300 mb-10">The future of human-AI collaboration.</p>
-        <a href="MystraWorksHomePage.html" class="enter-btn">Enter Site</a>
+        <p class="text-lg md:text-2xl text-slate-300">Click anywhere to enter the Weave.</p>
     </div>
 
     <script>
-        // --- VIDEO PLAYLIST SCRIPT ---
         const videoPlayer = document.getElementById('current-video');
-
-        // This is your playlist of videos.
+        const contentOverlay = document.getElementById('content-overlay');
+        
         const videoPlaylist = [
-    'videos/video1.mp4', 
-    'videos/video2.mp4'  
-];
-
+            'videos/video1.mp4', 
+            'videos/video2.mp4'  
+        ];
         let currentVideoIndex = 0;
 
-        // This function is called when a video finishes playing.
-        videoPlayer.onended = function() {
-            // Move to the next video in the playlist.
-            currentVideoIndex++;
-            
-            // If we've reached the end of the playlist, loop back to the beginning.
-            if (currentVideoIndex >= videoPlaylist.length) {
-                currentVideoIndex = 0;
-            }
-            
-            // Set the video player's source to the new video and play it.
+        function playNextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videoPlaylist.length;
             videoPlayer.src = videoPlaylist[currentVideoIndex];
-            videoPlayer.play();
-        };
+            videoPlayer.load();
+            videoPlayer.play().catch(error => console.error("Error playing next video:", error));
+        }
 
-        // This sets the initial video when the page loads.
-        videoPlayer.src = videoPlaylist[currentVideoIndex];
+        videoPlayer.addEventListener('ended', playNextVideo);
 
+        // CHANGE 2: The startExperience function is now much simpler.
+        function startExperience() {
+            contentOverlay.removeEventListener('click', startExperience);
+            contentOverlay.classList.add('hidden');
+
+            // All we do is tell the already-loaded video to play.
+            videoPlayer.play().catch(error => {
+                console.error("Initial playback failed:", error);
+            });
+            
+            // The redirect timer remains the same.
+            setTimeout(() => {
+                window.location.href = './MystraWorksHomePage.html';
+            }, 8000); 
+        }
+
+        contentOverlay.addEventListener('click', startExperience);
     </script>
 
 </body>
