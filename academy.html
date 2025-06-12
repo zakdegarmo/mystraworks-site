@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MystraWorks - The Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0B1120;
+            color: #E2E8F0;
+        }
+        .glass-card {
+            background: rgba(23, 29, 45, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.2);
+        }
+        .glow-effect {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.4) 0%, rgba(79, 70, 229, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .primary-btn {
+             background-color: #4F46E5;
+             color: white;
+             padding: 0.75rem 1.5rem;
+             border-radius: 0.5rem;
+             font-weight: 500;
+             transition: background-color 0.3s ease;
+             box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+        }
+        .primary-btn:hover {
+            background-color: #4338CA;
+        }
+    </style>
+</head>
+<body class="antialiased relative overflow-x-hidden">
+
+    <!-- Background Glow Effects -->
+    <div class="glow-effect top-[-150px] left-[50%]"></div>
+    <div class="glow-effect bottom-[-250px] left-[-150px]"></div>
+
+    <!-- Header -->
+    <header class="py-5 sticky top-0 z-10 glass-card">
+        <nav class="container mx-auto px-6 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold">MystraWorks</a>
+            <div class="space-x-4">
+                 <a href="index.html" class="text-slate-300 hover:text-white transition">Home</a>
+                 <a href="nexus.html" class="text-slate-300 hover:text-white transition">The Nexus</a>
+                 <a href="academy.html" class="text-white font-medium">The Academy</a>
+                 <a href="portfolio.html" class="text-slate-300 hover:text-white transition">Portfolio</a>
+                 <a href="blog.html" class="text-slate-300 hover:text-white transition">Blog</a>
+                 <a href="tutorial.html" class="text-slate-300 hover:text-white transition">Tutorials</a>
+                 <a href="ethics.html" class="text-slate-300 hover:text-white transition">Ethics</a>
+                 <a href="contact.html" class="primary-btn">Contact</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-16">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-black mb-4">The Academy of Mathosophical Discourse</h1>
+            <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto">An open-source exploration into the fundamental language of reality. Here, we publish our research, interactive tools, and philosophical inquiries into the nature of concept, language, and the Weave.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <!-- Research Item 1 -->
+            <a href="Math, Language, and Reality_.html" class="glass-card rounded-lg p-6 block">
+                <span class="text-sm font-semibold text-indigo-400">DEEP RESEARCH</span>
+                <h3 class="text-2xl font-bold mt-1 mb-2">Math, Language, and Reality</h3>
+                <p class="text-slate-300">An exhaustive analysis of the intertwined worlds of mathematics and linguistics, from ancient philosophy to the Mathematical Universe Hypothesis.</p>
+            </a>
+
+            <!-- Research Item 2 -->
+            <a href="Industry Trends & Market Research AI Assistants.html" class="glass-card rounded-lg p-6 block">
+                <span class="text-sm font-semibold text-indigo-400">MARKET ANALYSIS</span>
+                <h3 class="text-2xl font-bold mt-1 mb-2">The Future of AI Assistants</h3>
+                <p class="text-slate-300">A single-page application infographic visualizing the market size, competitive landscape, and future growth of the AI assistant industry.</p>
+            </a>
+            
+            <!-- Research Item 3 - Placeholder for Interactive Tool -->
+            <div class="glass-card rounded-lg p-6">
+                <span class="text-sm font-semibold text-amber-400">INTERACTIVE MEPHIT</span>
+                <h3 class="text-2xl font-bold mt-1 mb-2">FemtoByteCode Explorer</h3>
+                <p class="text-slate-300">An upcoming interactive tool to explore the principles of our proprietary conceptual compression algorithm. *Coming Soon*</p>
+            </div>
+            
+            <!-- Research Item 4 -->
+            <a href="#" class="glass-card rounded-lg p-6 block">
+                <span class="text-sm font-semibold text-indigo-400">AXIOMS & PRINCIPLES</span>
+                <h3 class="text-2xl font-bold mt-1 mb-2">The 0=1 Principle</h3>
+                <p class="text-slate-300">A foundational document on the core axiom of our work: the transformation from potentiality (0) to actuality (1) as the engine of creation.</p>
+            </a>
+            
+            <!-- Research Item 5 -->
+            <a href="#" class="glass-card rounded-lg p-6 block">
+                <span class="text-sm font-semibold text-indigo-400">PHILOSOPHICAL INQUIRY</span>
+                <h3 class="text-2xl font-bold mt-1 mb-2">Incursion vs. Recursion</h3>
+                <p class="text-slate-300">A response to the Chomsky Hierarchy, proposing "incursion" as a necessary concept for understanding the process of diving into and interacting with complex conceptual systems.</p>
+            </a>
+            
+            <!-- Research Item 6 (Placeholder) -->
+            <a href="#" class="glass-card rounded-lg p-6 block border-dashed border-2 border-slate-600">
+                <h3 class="text-xl font-bold text-slate-500 mb-2">The Voynich Protocol...</h3>
+                <p class="text-slate-400">Further research is required.</p>
+            </a>
+
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 py-16 mt-16">
+        <div class="container mx-auto px-6 text-center">
+             <p class="text-sm text-slate-500">&copy; 2025 MystraWorks. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

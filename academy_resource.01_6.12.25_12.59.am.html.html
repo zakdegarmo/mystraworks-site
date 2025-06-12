@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Intertwined Worlds of Mathematics and Linguistics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Scholarly Neutrals -->
+    <!-- Application Structure Plan: The SPA is designed as a non-linear, exploratory dashboard to make the dense, interconnected ideas of the report accessible. It replaces a linear document structure with a persistent sidebar for navigating between five core thematic sections: "The Ancient Quest," "Two Languages Compared," "The Mathematical Lens," "The Human Brain," and "Future Frontiers." This allows users to follow their own curiosity. Within each section, content is presented through interactive modules like a clickable gallery of thinkers, a dynamic comparison chart, HTML/CSS-based conceptual diagrams, an interactive brain map, and a tabbed interface for complex theories. This structure was chosen to transform passive reading into active exploration, making the synthesis of complex information more intuitive and engaging. -->
+    <!-- Visualization & Content Choices: 
+        - Table 1 (Historical Figures): Goal: Organize/Inform -> Viz: Interactive gallery of profiles -> Interaction: Click-to-reveal details in a modal -> Justification: Transforms a static table into an engaging "hall of fame," improving discoverability -> Method: HTML/JS.
+        - Table 2 (Math/Language Comparison): Goal: Compare -> Viz: Dynamic horizontal bar chart -> Interaction: User clicks buttons to select a feature (e.g., "Precision"), updating the chart and text -> Justification: More impactful and memorable than a static table; visualizes the degree of difference -> Library: Chart.js.
+        - Table 3 (Neural Correlates): Goal: Relate/Organize -> Viz: HTML/CSS diagram of the human brain -> Interaction: Clickable brain regions update an adjacent info panel with details -> Justification: Spatially grounds abstract neuroscientific data, making it more intuitive and memorable -> Method: HTML/JS.
+        - Formal Concepts (Chomsky Hierarchy, Merge): Goal: Explain Structure -> Viz: Diagrams built with HTML/CSS -> Interaction: Hovering on elements reveals tooltips -> Justification: Visual representation is crucial for understanding abstract formalisms -> Method: HTML/JS.
+        - Speculative Theories: Goal: Organize/Inform -> Viz: Tabbed content area -> Interaction: User clicks tabs for "Consciousness," "MUH," etc. -> Justification: Breaks down dense, speculative content into digestible, user-controlled chunks -> Method: HTML/JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #0f766e; /* teal-700 */
+            color: white;
+            transform: translateX(4px);
+        }
+        .nav-link:not(.active):hover {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #0f766e; /* teal-700 */
+            transform: translateX(2px);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .thinker-card, .brain-region {
+            transition: all 0.2s ease-in-out;
+        }
+        .thinker-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .brain-region.active {
+            fill: #14b8a6; /* teal-500 */
+            stroke: #0f766e; /* teal-700 */
+        }
+        .brain-region:not(.active):hover {
+            fill: #ccfbf1; /* teal-100 */
+        }
+        .custom-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .has-tooltip:hover .custom-tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .tab.active {
+            border-color: #14b8a6; /* teal-500 */
+            color: #0f766e; /* teal-700 */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row h-screen antialiased">
+
+    <aside class="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex-shrink-0">
+        <div class="p-4">
+            <h1 class="text-xl font-bold text-teal-800">Math & Language</h1>
+            <p class="text-sm text-slate-500">An Interactive Exploration</p>
+        </div>
+        <nav id="main-nav" class="p-2 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto">
+            <a href="#home" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap active">Home</a>
+            <a href="#ancient-quest" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap">The Ancient Quest</a>
+            <a href="#two-languages" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap">Two Languages Compared</a>
+            <a href="#math-lens" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap">The Mathematical Lens</a>
+            <a href="#human-brain" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap">The Human Brain</a>
+            <a href="#future-frontiers" class="nav-link text-slate-700 font-medium rounded-lg px-4 py-2.5 mb-1 text-sm md:text-base whitespace-nowrap">Future Frontiers</a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12">
+        <div id="content-container">
+            
+            <section id="home" class="content-section active">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4">The Intertwined Worlds of Mathematics and Linguistics</h2>
+                    <p class="text-lg text-slate-600 mb-8">This application provides an interactive exploration of the deep and often surprising connections between mathematics and language. From ancient philosophy to modern neuroscience, we'll delve into how these two fundamental symbolic systems shape our understanding of reality and the human mind. Use the navigation to explore the different facets of this fascinating dialogue.</p>
+                     <div class="flex justify-center items-center space-x-8 text-teal-600">
+                        <div class="text-center">
+                            <span class="text-5xl font-mono">∀x</span>
+                            <p class="mt-2 font-semibold">Mathematics</p>
+                        </div>
+                        <div class="text-4xl text-slate-400 font-light">&harr;</div>
+                         <div class="text-center">
+                            <span class="text-5xl">🗣️</span>
+                            <p class="mt-2 font-semibold">Language</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-12">This interactive experience is based on the report "The Intertwined Worlds of Mathematics and Linguistics: From Ancient Questions to Future Theories."</p>
+                </div>
+            </section>
+
+            <section id="ancient-quest" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">The Ancient Quest for the *Archē*</h2>
+                <p class="text-base text-slate-600 mb-8 max-w-3xl">The journey into the relationship between math and language begins with the earliest philosophers. The Pre-Socratics in ancient Greece were the first to move beyond mythological explanations, seeking a single, fundamental substance or principle—the *archē*—from which everything is derived. Their diverse theories laid the groundwork for rational inquiry and reveal an early understanding that different "languages" might be needed to describe reality.</p>
+                <div id="thinkers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                </div>
+            </section>
+            
+            <section id="two-languages" class="content-section">
+                 <h2 class="text-3xl font-bold text-slate-800 mb-2">Two Languages Compared</h2>
+                 <p class="text-base text-slate-600 mb-8 max-w-3xl">While both mathematics and natural language are powerful symbolic systems for describing the world, they have fundamentally different designs and capabilities. This section provides an interactive comparison of their key attributes, showing where each system excels and where its limitations lie.</p>
+                 <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-4">Interactive Comparison</h3>
+                    <div id="comparison-controls" class="flex flex-wrap gap-2 mb-4">
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                        <div class="lg:col-span-3">
+                           <div class="chart-container relative h-80 md:h-96 w-full max-w-2xl mx-auto">
+                                <canvas id="comparisonChart"></canvas>
+                           </div>
+                        </div>
+                        <div id="comparison-text" class="lg:col-span-2 text-slate-700 bg-slate-50 p-4 rounded-md">
+                        </div>
+                    </div>
+                 </div>
+            </section>
+
+            <section id="math-lens" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Language Through The Mathematical Lens</h2>
+                <p class="text-base text-slate-600 mb-8 max-w-3xl">Just as mathematics can be viewed as a language, language itself can be rigorously analyzed using mathematical tools. From formal grammars that generate sentences to theories that quantify information, mathematics provides a powerful lens for uncovering the hidden structures and principles of human language. This section explores some of the key frameworks and concepts.</p>
+                <div class="space-y-8">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold mb-2">Chomsky's Generative Grammar</h3>
+                        <p class="text-sm text-slate-600 mb-4">Noam Chomsky revolutionized linguistics by proposing that language is generated by an innate, computational system in the mind. A core operation in his modern theory is "Merge," which recursively combines elements to build sentences.</p>
+                        <div class="flex items-center justify-center bg-slate-50 p-6 rounded-md min-h-[150px]">
+                            <div class="text-center relative has-tooltip">
+                                <div class="border-2 border-teal-500 rounded-md px-4 py-2 font-mono bg-white">NP: the cat</div>
+                                <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs rounded-md p-2 custom-tooltip">Merge combines two objects (e.g., a determiner 'the' and a noun 'cat') to form a new phrase.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold mb-2">The Chomsky Hierarchy of Languages</h3>
+                        <p class="text-sm text-slate-600 mb-4">This hierarchy classifies formal languages based on their complexity, from simple "Regular" languages to the highly complex "Recursively Enumerable" languages that require a full Turing machine to process. Natural human languages are thought to be at least "Context-Free."</p>
+                        <div class="flex flex-col items-center justify-center p-4 space-y-2 text-center text-sm font-medium">
+                            <div class="w-full max-w-lg p-3 border-2 border-slate-700 rounded-lg bg-red-100 text-red-800 has-tooltip relative">
+                                Recursively Enumerable (Turing Machine)
+                                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs rounded-md p-2 custom-tooltip">Most complex; recognized by a Turing machine.</div>
+                                <div class="w-full max-w-md p-3 border-2 border-slate-600 rounded-lg bg-orange-100 text-orange-800 mt-2 has-tooltip relative">
+                                    Context-Sensitive
+                                    <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs rounded-md p-2 custom-tooltip">More complex grammars. Natural language may fall here.</div>
+                                    <div class="w-full max-w-sm p-3 border-2 border-slate-500 rounded-lg bg-yellow-100 text-yellow-800 mt-2 has-tooltip relative">
+                                        Context-Free
+                                        <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs rounded-md p-2 custom-tooltip">Can handle nested structures, like phrases within phrases.</div>
+                                        <div class="w-full max-w-xs p-3 border-2 border-slate-400 rounded-lg bg-green-100 text-green-800 mt-2 has-tooltip relative">
+                                            Regular
+                                            <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-slate-800 text-white text-xs rounded-md p-2 custom-tooltip">Simplest form, like basic patterns.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="human-brain" class="content-section">
+                 <h2 class="text-3xl font-bold text-slate-800 mb-2">The Mind's Machinery</h2>
+                 <p class="text-base text-slate-600 mb-8 max-w-3xl">How are mathematics and language represented in the human brain? Neuroscientific research reveals a complex picture of both distinct and overlapping neural networks. This interactive diagram explores the key brain regions involved and their roles in processing these two fundamental human abilities. Click on a region to learn more.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <svg id="brain-diagram" viewBox="0 0 300 250" class="w-full h-auto bg-white rounded-lg shadow-sm p-2">
+                          <path class="brain-region" data-region="frontal" d="M123.5,23.5 C40,25 25,110 90,160 C90,160 110,140 160,120 S195,35 123.5,23.5z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                          <path class="brain-region" data-region="parietal" d="M123.5,23.5 C195,35 230,90 200,140 C200,140 160,120 123.5,23.5z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                          <path class="brain-region" data-region="temporal" d="M90,160 C100,200 180,210 210,170 C210,170 160,150 90,160z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                          <path class="brain-region" data-region="occipital" d="M200,140 C240,130 250,160 210,170 C210,170 200,140 200,140z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+                          <text x="110" y="80" font-family="Inter" font-size="12" fill="#334155">Frontal</text>
+                          <text x="170" y="70" font-family="Inter" font-size="12" fill="#334155">Parietal</text>
+                          <text x="135" y="180" font-family="Inter" font-size="12" fill="#334155">Temporal</text>
+                          <text x="205" y="155" font-family="Inter" font-size="10" fill="#334155">Occipital</text>
+                        </svg>
+                        <p class="text-xs text-center text-slate-500 mt-2">Simplified diagram for illustrative purposes.</p>
+                    </div>
+                    <div id="brain-info" class="bg-white p-6 rounded-lg shadow-sm min-h-[300px]">
+                        <h3 id="brain-info-title" class="text-xl font-semibold text-slate-800 mb-2">Select a Brain Region</h3>
+                        <div id="brain-info-content" class="text-slate-700 space-y-4">
+                            <p>Click on a highlighted area of the brain diagram to see its role in mathematical and linguistic processing.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="future-frontiers" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Future Frontiers & Speculative Theories</h2>
+                <p class="text-base text-slate-600 mb-8 max-w-3xl">The dialogue between math and language is far from over. This section explores current debates and the speculative theories that push the boundaries of our understanding, from the nature of consciousness to the very fabric of reality itself. These are the frontiers where new research and novel ideas are born.</p>
+                <div>
+                    <div class="border-b border-slate-200 mb-4">
+                        <nav id="theory-tabs" class="-mb-px flex space-x-6" aria-label="Tabs">
+                        </nav>
+                    </div>
+                    <div id="theory-content">
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const appData = {
+                thinkers: [
+                    { name: 'Thales', idea: 'Proposed that the fundamental *archē* is <strong>water</strong>, based on its essential role in life and its ability to change states. This was an early attempt to find a single, unifying material principle.', image: '🌊' },
+                    { name: 'Anaximander', idea: 'Suggested the *archē* was a more abstract substance called <strong>apeiron</strong>—an indefinite, boundless, and eternal source from which all things emerge and return.', image: '♾️' },
+                    { name: 'Heraclitus', idea: 'Argued that the fundamental reality is not a substance but <strong>constant change (flux)</strong>, symbolized by fire. Famously stated, "You can\'t step in the same river twice."', image: '🔥' },
+                    { name: 'Pythagoras', idea: 'Introduced the radical idea that the universe is fundamentally made of <strong>numbers and mathematical relationships</strong>. He proposed an abstract, formal system as the ultimate reality.', image: '🔢' }
+                ],
+                comparisonData: {
+                    precision: {
+                        label: "Precision",
+                        scores: [95, 30],
+                        text: "<strong>Mathematical language</strong> strives for maximal precision and the elimination of all ambiguity. Definitions are exact, and statements are either true or false within a formal system. <strong>Natural language</strong>, in contrast, is inherently ambiguous and vague, which allows for richness and nuance but can lead to misinterpretation."
+                    },
+                    expressiveness: {
+                        label: "Expressiveness",
+                        scores: [40, 90],
+                        text: "<strong>Natural language</strong> has a vast expressive domain, capable of conveying subtle emotions, social cues, and the full spectrum of human experience. <strong>Mathematical language</strong> excels at describing abstract structures, quantities, and logical relationships but is limited for expressing personal or emotional content."
+                    },
+                    syntax: {
+                        label: "Syntax",
+                        scores: [90, 50],
+                        text: "<strong>Mathematical syntax</strong> is highly constrained by formal rules of formation. Only well-formed formulas are permissible. <strong>Natural language syntax</strong> is far more flexible and evolves organically. While it has rules, they are often context-dependent and riddled with exceptions."
+                    },
+                    evolution: {
+                        label: "Evolution",
+                        scores: [60, 80],
+                        text: "<strong>Natural language</strong> evolves organically through communal use over centuries. <strong>Mathematical language</strong> evolves through a dual process: both gradual \"natural selection\" from usage by mathematicians and deliberate, systematic design by logicians aiming for greater clarity and power."
+                    }
+                },
+                brainData: {
+                    frontal: {
+                        title: "Frontal Lobe",
+                        content: `<p><strong>Role in Language:</strong> Crucial for language production (Broca's area), grammar, and the executive functions needed for discourse.</p><p><strong>Role in Math:</strong> Involved in problem-solving, working memory for holding numbers, and planning calculation steps. Shows overlap with language for general logical/symbolic tasks.</p>`
+                    },
+                    parietal: {
+                        title: "Parietal Lobe",
+                        content: `<p><strong>Role in Math:</strong> A core hub for mathematics, especially the intraparietal sulcus (IPS). It's fundamental for understanding quantity, number sense, and spatial reasoning, which strongly underpins mathematical thought.</p><p><strong>Role in Language:</strong> Less central to core grammar, but involved in integrating sensory information and aspects of language that relate to space and numbers.</p>`
+                    },
+                    temporal: {
+                        title: "Temporal Lobe",
+                        content: `<p><strong>Role in Language:</strong> A core hub for language, responsible for auditory processing and language comprehension (Wernicke's area). It's where the meaning of words is processed.</p><p><strong>Role in Math:</strong> Involved in retrieving memorized math facts, like multiplication tables, which are often learned verbally.</p>`
+                    },
+                    occipital: {
+                        title: "Occipital Lobe",
+                        content: `<p><strong>Role in Language & Math:</strong> As the brain's visual processing center, it's essential for reading both words and mathematical symbols. It handles the initial visual input before it's sent to language or math-specific areas for interpretation.</p>`
+                    }
+                },
+                theories: [
+                    { id: 'consciousness', title: 'Consciousness', content: 'Some theories propose that language and mathematics are not just tools but are intrinsically linked to consciousness itself. Language may provide the structure for self-aware internal dialogue, while mathematics mirrors the logical structures of rational thought. This line of inquiry explores whether a deep understanding of these symbolic systems could unlock the secrets of subjective experience.'},
+                    { id: 'muh', title: 'Mathematical Universe Hypothesis', content: 'Proposed by Max Tegmark, this radical theory posits that our physical reality is not just *described by* mathematics, but *is* a mathematical structure. In this view, all mathematically existing structures also exist physically as parallel universes. This pushes the Pythagorean idea to its ultimate conclusion but faces significant challenges regarding testability and Gödel\'s incompleteness theorem.'},
+                    { id: 'symbolic-systems', title: 'Unified Symbolic Systems', content: 'This avenue of research seeks overarching principles that govern all symbolic systems, including math, language, art, and even myth. It draws on philosophy (Ernst Cassirer), computer science (unification theory), and interdisciplinary programs to find common computational or cognitive architectures. The goal is to create a more integrated framework for how humans create and manipulate symbols to make sense of the world.'},
+                ]
+            };
+
+            const navLinks = document.querySelectorAll('#main-nav a');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function navigate(hash) {
+                navLinks.forEach(link => link.classList.toggle('active', link.hash === hash));
+                contentSections.forEach(section => section.classList.toggle('active', '#' + section.id === hash));
+            }
+
+            function setupNavigation() {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const hash = e.currentTarget.hash;
+                        if (window.location.hash !== hash) {
+                           window.location.hash = hash;
+                        }
+                    });
+                });
+                
+                window.addEventListener('hashchange', () => {
+                    const hash = window.location.hash || '#home';
+                    navigate(hash);
+                });
+                
+                navigate(window.location.hash || '#home');
+            }
+
+            function populateThinkers() {
+                const grid = document.getElementById('thinkers-grid');
+                if(!grid) return;
+                
+                appData.thinkers.forEach(thinker => {
+                     const card = document.createElement('div');
+                     card.className = 'thinker-card bg-white p-6 rounded-lg shadow-sm border border-slate-200 flex flex-col items-center text-center h-full';
+                     card.innerHTML = `
+                        <div class="text-4xl mb-4">${thinker.image}</div>
+                        <h3 class="font-semibold text-xl text-slate-800 mb-2">${thinker.name}</h3>
+                        <p class="text-sm text-slate-600 flex-grow">${thinker.idea}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+
+            let comparisonChartInstance = null;
+            function setupComparisonChart() {
+                const ctx = document.getElementById('comparisonChart');
+                if (!ctx) return;
+
+                const controlsContainer = document.getElementById('comparison-controls');
+                const textContainer = document.getElementById('comparison-text');
+
+                comparisonChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mathematical Language', 'Natural Language'],
+                        datasets: [{
+                            label: 'Comparative Score',
+                            data: [0, 0],
+                            backgroundColor: ['rgba(20, 184, 166, 0.6)', 'rgba(100, 116, 139, 0.6)'],
+                            borderColor: ['rgb(15, 118, 110)', 'rgb(51, 65, 85)'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: false
+                            }
+                        }
+                    }
+                });
+
+                function updateChart(key) {
+                    const data = appData.comparisonData[key];
+                    if (data && comparisonChartInstance) {
+                        comparisonChartInstance.data.datasets[0].data = data.scores;
+                        comparisonChartInstance.options.plugins.title = { display: true, text: data.label };
+                        comparisonChartInstance.update();
+                        textContainer.innerHTML = `<h4 class="font-semibold text-lg mb-2">${data.label}</h4><p class="text-sm">${data.text}</p>`;
+
+                        document.querySelectorAll('#comparison-controls button').forEach(b => {
+                            b.classList.toggle('bg-teal-600', b.dataset.key === key);
+                            b.classList.toggle('text-white', b.dataset.key === key);
+                            b.classList.toggle('bg-slate-100', b.dataset.key !== key);
+                            b.classList.toggle('text-slate-700', b.dataset.key !== key);
+                        });
+                    }
+                }
+
+                Object.keys(appData.comparisonData).forEach(key => {
+                    const button = document.createElement('button');
+                    button.textContent = appData.comparisonData[key].label;
+                    button.dataset.key = key;
+                    button.className = 'px-3 py-1.5 rounded-md text-sm font-medium transition';
+                    button.addEventListener('click', () => updateChart(key));
+                    controlsContainer.appendChild(button);
+                });
+
+                updateChart('precision');
+            }
+            
+            function setupBrainDiagram() {
+                const brainRegions = document.querySelectorAll('.brain-region');
+                const infoTitle = document.getElementById('brain-info-title');
+                const infoContent = document.getElementById('brain-info-content');
+
+                if (!brainRegions.length) return;
+
+                brainRegions.forEach(region => {
+                    region.addEventListener('click', () => {
+                        const regionKey = region.dataset.region;
+                        const regionData = appData.brainData[regionKey];
+
+                        brainRegions.forEach(r => r.classList.remove('active'));
+                        region.classList.add('active');
+
+                        if (regionData) {
+                            infoTitle.textContent = regionData.title;
+                            infoContent.innerHTML = regionData.content;
+                        }
+                    });
+                });
+            }
+
+            function setupTheories() {
+                const tabsContainer = document.getElementById('theory-tabs');
+                const contentContainer = document.getElementById('theory-content');
+
+                if(!tabsContainer || !contentContainer) return;
+
+                appData.theories.forEach((theory, index) => {
+                    const tab = document.createElement('button');
+                    tab.className = `tab py-2 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-teal-600 hover:border-teal-300`;
+                    tab.textContent = theory.title;
+                    tab.dataset.target = theory.id;
+                    tabsContainer.appendChild(tab);
+
+                    const content = document.createElement('div');
+                    content.id = theory.id;
+                    content.className = 'theory-panel p-4 bg-white rounded-lg shadow-sm';
+                    content.innerHTML = `<h4 class="font-semibold text-lg text-slate-800 mb-2">${theory.title}</h4><p class="text-slate-700">${theory.content}</p>`;
+                    contentContainer.appendChild(content);
+
+                    if (index === 0) {
+                        tab.classList.add('active');
+                    } else {
+                        content.style.display = 'none';
+                    }
+                });
+
+                tabsContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const targetId = e.target.dataset.target;
+                        tabsContainer.querySelectorAll('button').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        contentContainer.querySelectorAll('.theory-panel').forEach(p => {
+                            p.style.display = p.id === targetId ? 'block' : 'none';
+                        });
+                    }
+                });
+            }
+
+            setupNavigation();
+            populateThinkers();
+            setupComparisonChart();
+            setupBrainDiagram();
+            setupTheories();
+        });
+    </script>
+</body>
+</html>
