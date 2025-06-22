@@ -16,6 +16,7 @@
       width: 100vw; /* Full viewport width */
       height: 100vh; /* Full viewport height */
       display: block; /* Ensure it behaves as a block element */
+      cursor: pointer; /* Indicate interactivity */
     }
     h1 {
         position: absolute;
@@ -25,6 +26,7 @@
         z-index: 10;
         font-size: 1.5rem;
         color: #9ca3af; /* Subdued title color */
+        pointer-events: none; /* Make sure title doesn't interfere with clicks */
     }
   </style>
 </head>
@@ -54,10 +56,11 @@
       canvasContainer.appendChild(renderer.domElement);
 
       // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // Softer ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Slightly brighter ambient
       scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); // Stronger directional light
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Slightly brighter directional
       directionalLight.position.set(5, 10, 7.5);
+      directionalLight.castShadow = true; // Optional: for nicer visuals if you add a ground plane
       scene.add(directionalLight);
 
       // Dice Definitions
@@ -69,18 +72,19 @@
       ];
 
       diceData.forEach(data => {
-        const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.3, roughness: 0.6 });
+        const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.2, roughness: 0.7 });
         const mesh = new THREE.Mesh(data.geometry, material);
         mesh.position.copy(data.position);
-        mesh.userData.name = data.name;
-        mesh.userData.rotationSpeed = data.rotationSpeed; // Store rotation speed
+        mesh.userData.name = data.name; // Crucial for identification
+        mesh.userData.rotationSpeed = data.rotationSpeed;
+        mesh.userData.url = data.name.toLowerCase().replace(/\s+/g, '_') + '.html'; // e.g., business_services.html
         scene.add(mesh);
         diceMeshes.push(mesh);
       });
 
       // Event Listeners
       window.addEventListener('resize', onWindowResize, false);
-      renderer.domElement.addEventListener('mousedown', onCanvasMouseDown, false);
+      renderer.domElement.addEventListener('mousedown', onCanvasMouseDown, false); // Changed from 'click' to 'mousedown' for better responsiveness sometimes
 
       animate();
     }
@@ -92,31 +96,36 @@
     }
 
     function onCanvasMouseDown(event) {
-      // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+      event.preventDefault(); // Good practice to prevent default browser actions on canvas click
+
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-      // Update the picking ray with the camera and mouse position
       raycaster.setFromCamera(mouse, camera);
-
-      // Calculate objects intersecting the picking ray
       const intersects = raycaster.intersectObjects(diceMeshes);
 
       if (intersects.length > 0) {
         const clickedDie = intersects[0].object;
-        console.log(clickedDie.userData.name + " Die Clicked!");
-        // Future: Implement navigation or interaction for the clicked die
+        console.log(clickedDie.userData.name + " Die Clicked! Navigating to: " + clickedDie.userData.url);
+
+        // Navigation Logic
+        if (clickedDie.userData.url) {
+            window.location.href = clickedDie.userData.url;
+        } else {
+            console.error("No URL defined for clicked die:", clickedDie.userData.name);
+        }
       }
     }
 
     function animate() {
       requestAnimationFrame(animate);
 
-      // Animate dice rotation
       diceMeshes.forEach(die => {
-        die.rotation.x += die.userData.rotationSpeed.x;
-        die.rotation.y += die.userData.rotationSpeed.y;
-        die.rotation.z += die.userData.rotationSpeed.z;
+        if (die.userData.rotationSpeed) {
+            die.rotation.x += die.userData.rotationSpeed.x;
+            die.rotation.y += die.userData.rotationSpeed.y;
+            die.rotation.z += die.userData.rotationSpeed.z;
+        }
       });
 
       renderer.render(scene, camera);
