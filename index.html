@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MystraWorks</title>
+    <title>Welcome to MystraWorks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            font-family: 'Inter', sans-serif;
             background-color: #000;
         }
         #video-background {
@@ -32,40 +35,69 @@
             min-width: 177.77vh; /* 16:9 aspect ratio for vertical coverage */
             transform: translate(-50%, -50%);
         }
+        #click-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5); /* Start with a dark overlay */
+            opacity: 1;
+            transition: opacity 1s ease-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+        #click-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
     <div id="video-background">
-        <!-- This div will be replaced by the YouTube iframe -->
+        <!-- This div is the target for the YouTube API -->
         <div id="youtube-player"></div>
     </div>
-    
+
+    <!-- This overlay captures the first click to start the experience -->
+    <div id="click-overlay">
+        <h1 class="text-5xl md:text-8xl font-black mb-4 animate-pulse">MystraWorks</h1>
+        <p class="text-lg md:text-2xl text-slate-300">Click anywhere to enter the Weave.</p>
+    </div>
+
     <script>
-        // 1. This code loads the YouTube IFrame Player API code asynchronously.
+        // Load the YouTube IFrame Player API code asynchronously.
         var tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         var firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         var player;
-        const videoId = 'oTJQCWrQt8E'; // The ID of the YouTube video
+        const videoId = 'oTJQCWrQt8E'; // The 0-to-1 video ID
+        let redirectTimer = null;
 
-        // 2. This function creates the YouTube player after the API code downloads.
+        // This function creates the player when the API is ready.
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
                 videoId: videoId,
                 playerVars: {
-                    autoplay: 1,        // Autoplay the video
-                    controls: 0,        // Hide player controls
-                    showinfo: 0,        // Hide video title
-                    modestbranding: 1,  // Reduce YouTube logo
-                    loop: 1,            // Loop the video
-                    playlist: videoId,  // The video ID must be in the playlist for loop to work
-                    fs: 0,              // Disable fullscreen button
-                    iv_load_policy: 3,  // Hide annotations
-                    mute: 1,            // Mute the video (REQUIRED for autoplay)
-                    start: 9            // Start 9 seconds into the video
+                    autoplay: 1,
+                    controls: 0,
+                    showinfo: 0,
+                    modestbranding: 1,
+                    loop: 1, // Loop is kept, but ENDED event will redirect before loop restarts
+                    playlist: videoId, // Required for loop=1 to work
+                    fs: 0,
+                    iv_load_policy: 3,
+                    mute: 1,
+                    playsinline: 1
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -74,31 +106,49 @@
             });
         }
 
-        // 3. The API calls this function when the video player is ready.
         function onPlayerReady(event) {
-            // The video will start playing automatically due to the 'autoplay: 1' parameter.
-            console.log("Player is ready and video is playing.");
+            console.log("YouTube Player is ready.");
         }
-
-        let hasRedirected = false;
-        // 4. This function handles the redirect after a set time.
+        
+        // This function fires when the player's state changes (e.g., playing, paused, ended)
         function onPlayerStateChange(event) {
-            // Player.PlayerState.PLAYING equals 1.
-            // We only want to set the timer once, when the video first starts.
-            if (event.data == YT.PlayerState.PLAYING && !hasRedirected) {
-                console.log("Video playback has begun. Starting redirect timer.");
-                // Set the timeout to redirect to the main site after the intro duration.
-                setTimeout(switchToMainSite, 8000); // 9-second duration
-                hasRedirected = true; // Prevents the timer from being set again.
-            }
+             // YT.PlayerState.ENDED is 0
+             if (event.data === YT.PlayerState.ENDED) {
+                console.log("Video playback ended. Redirecting to prime_nexus.html");
+                if (redirectTimer) {
+                    clearTimeout(redirectTimer);
+                    redirectTimer = null;
+                }
+                window.location.href = 'prime_nexus.html';
+             } else if (event.data === YT.PlayerState.PLAYING) {
+                console.log("Video playback started.");
+                // No timer needed here; ENDED state will handle redirect.
+                // Fallback timer is set in startExperience.
+             }
         }
 
-        // 5. This function handles the final switch to your main content page.
-        function switchToMainSite() {
-            console.log("Redirecting to homepage...");
-            // Using a relative path is the most reliable way.
-            window.location.href = 'MystraWorksHomePage.html';
+        // The function to start the experience, triggered by the first click.
+        function startExperience() {
+            const overlay = document.getElementById('click-overlay');
+            
+            // Hide the overlay
+            overlay.classList.add('hidden');
+
+            // Player should attempt to play due to autoplay=1, mute=1 and user interaction.
+            // Set a general fallback timer in case YouTube events don't fire as expected
+            // or video stalls. This timer starts from the click.
+            // If the ENDED event fires, it will clear this timer.
+            if (redirectTimer) { // Clear any previous timer if function is somehow called again
+                clearTimeout(redirectTimer);
+            }
+            redirectTimer = setTimeout(() => {
+                console.log("Fallback timer expired. Redirecting to prime_nexus.html");
+                window.location.href = 'prime_nexus.html';
+            }, 11000); // Video is ~9s long. Fallback after 11s.
         }
+
+        // Listen for the first click on the overlay.
+        document.getElementById('click-overlay').addEventListener('click', startExperience, { once: true });
     </script>
 
 </body>
