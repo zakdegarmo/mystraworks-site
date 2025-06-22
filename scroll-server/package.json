@@ -1,0 +1,12 @@
+{
+  "name": "scroll-server",
+  "version": "1.0.0",
+  "description": "MystraWorks Scroll Server MVP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
