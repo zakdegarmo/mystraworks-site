@@ -9,7 +9,7 @@
       text-align: center;
       margin: 0; /* Remove default margin */
       overflow: hidden; /* Prevent scrollbars */
-      background-color: #111827; /* Dark background */
+      background-color: #000000; /* Darker background for stars */
       color: #e5e7eb; /* Light text color for contrast */
     }
     #3d-canvas-container {
@@ -39,13 +39,15 @@
     let diceMeshes = [];
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let hoveredDie = null; // To keep track of the currently hovered die
 
     function init() {
       // Scene
       scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000); // Black background for starfield
 
       // Camera
-      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000); // Increased far plane for stars
       camera.position.z = 5;
 
       // Renderer
@@ -56,11 +58,10 @@
       canvasContainer.appendChild(renderer.domElement);
 
       // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7); // Slightly brighter ambient
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Slightly brighter directional
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
       directionalLight.position.set(5, 10, 7.5);
-      directionalLight.castShadow = true; // Optional: for nicer visuals if you add a ground plane
       scene.add(directionalLight);
 
       // Dice Definitions
@@ -72,19 +73,37 @@
       ];
 
       diceData.forEach(data => {
-        const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.2, roughness: 0.7 });
+        const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.2, roughness: 0.7, emissive: 0x000000 });
         const mesh = new THREE.Mesh(data.geometry, material);
         mesh.position.copy(data.position);
-        mesh.userData.name = data.name; // Crucial for identification
+        mesh.userData.name = data.name;
         mesh.userData.rotationSpeed = data.rotationSpeed;
-        mesh.userData.url = data.name.toLowerCase().replace(/\s+/g, '_') + '.html'; // e.g., business_services.html
+        mesh.userData.url = data.name.toLowerCase().replace(/\s+/g, '_') + '.html';
+        mesh.userData.originalScale = new THREE.Vector3().copy(mesh.scale);
+        mesh.userData.originalEmissive = material.emissive.getHex(); // Store initial emissive (should be 0x000000)
         scene.add(mesh);
         diceMeshes.push(mesh);
       });
 
+      // Starfield
+      const starGeometry = new THREE.BufferGeometry();
+      const starVertices = [];
+      for (let i = 0; i < 10000; i++) {
+        const x = THREE.MathUtils.randFloatSpread(1500); // Spread stars wider
+        const y = THREE.MathUtils.randFloatSpread(1500);
+        const z = THREE.MathUtils.randFloatSpread(1500);
+        starVertices.push(x, y, z);
+      }
+      starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+      const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7, transparent: true, opacity: 0.8 });
+      const stars = new THREE.Points(starGeometry, starMaterial);
+      scene.add(stars);
+
+
       // Event Listeners
       window.addEventListener('resize', onWindowResize, false);
-      renderer.domElement.addEventListener('mousedown', onCanvasMouseDown, false); // Changed from 'click' to 'mousedown' for better responsiveness sometimes
+      renderer.domElement.addEventListener('mousedown', onCanvasMouseDown, false);
+      renderer.domElement.addEventListener('mousemove', onCanvasMouseMove, false); // For hover effects
 
       animate();
     }
@@ -95,8 +114,41 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    function onCanvasMouseMove(event) {
+        event.preventDefault();
+
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(diceMeshes);
+
+        if (intersects.length > 0) {
+            const firstIntersected = intersects[0].object;
+            if (hoveredDie !== firstIntersected) {
+                // Reset previously hovered die if there was one
+                if (hoveredDie) {
+                    hoveredDie.scale.copy(hoveredDie.userData.originalScale);
+                    hoveredDie.material.emissive.setHex(hoveredDie.userData.originalEmissive);
+                }
+                hoveredDie = firstIntersected;
+                // Apply hover effect
+                hoveredDie.scale.multiplyScalar(1.1);
+                hoveredDie.material.emissive.setHex(0x555555); // Subtle white glow
+            }
+        } else {
+            // No intersection, reset if a die was hovered
+            if (hoveredDie) {
+                hoveredDie.scale.copy(hoveredDie.userData.originalScale);
+                hoveredDie.material.emissive.setHex(hoveredDie.userData.originalEmissive);
+                hoveredDie = null;
+            }
+        }
+    }
+
+
     function onCanvasMouseDown(event) {
-      event.preventDefault(); // Good practice to prevent default browser actions on canvas click
+      event.preventDefault(); 
 
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -106,9 +158,16 @@
 
       if (intersects.length > 0) {
         const clickedDie = intersects[0].object;
+        
+        // Reset hover effect before navigation
+        if (hoveredDie) {
+            hoveredDie.scale.copy(hoveredDie.userData.originalScale);
+            hoveredDie.material.emissive.setHex(hoveredDie.userData.originalEmissive);
+            hoveredDie = null;
+        }
+
         console.log(clickedDie.userData.name + " Die Clicked! Navigating to: " + clickedDie.userData.url);
 
-        // Navigation Logic
         if (clickedDie.userData.url) {
             window.location.href = clickedDie.userData.url;
         } else {
