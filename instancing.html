@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>The Weave's Echoes - Instancing</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      background-color: #222; /* Keep dark theme consistent */
+      color: #eee;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    a {
+        color: #87ceeb; /* Light blue for links */
+        text-decoration: none;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to The Weave's Echoes</h1>
+  <p>This section will explore concepts of instancing and replicated realities. Content Coming Soon!</p>
+  <p><a href="prime_nexus.html">Back to Prime Nexus</a></p>
+
+    <!-- Firebase App (Core) - Always required -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <!-- Firebase Authentication - For user login/registration -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <!-- Firestore Client (if you plan to interact with Firestore directly from the client later) -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script> -->
+
+    <script>
+      // YOUR FIREBASE PROJECT CONFIGURATION - "mystraos"
+      const firebaseConfig = {
+        apiKey: "AIzaSyDr-NIzZaz8vXZ8umXk_45MlNp6HoBXwkQ",
+        authDomain: "mystraos.firebaseapp.com",
+        projectId: "mystraos",
+        storageBucket: "mystraos.firebasestorage.app",
+        messagingSenderId: "912155809484",
+        appId: "1:912155809484:web:deb84563d00da8fed7d469",
+        measurementId: "G-4CZ7450X8J"
+      };
+
+      // Initialize Firebase
+      // This line sets up the connection to your Firebase project.
+      firebase.initializeApp(firebaseConfig);
+      
+      // Make the Firebase Authentication service available for your logos-companion.js
+      // We'll use this 'auth' object in logos-companion.js to handle user sign-in, sign-up, etc.
+      const auth = firebase.auth(); 
+
+      console.log("Firebase Initialized & Auth Service Ready!");
+      // You should see this message in your browser's console if everything is set up correctly.
+    </script>
+
+<script src="js/logos-companion.js"></script>
+<logos-companion></logos-companion>
+</body>
+</html>
