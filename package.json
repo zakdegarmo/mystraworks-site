@@ -3,6 +3,7 @@
     "@google/generative-ai": "^0.24.1",
     "firebase": "^11.9.1",
     "node-fetch": "^3.3.2",
+    "path-browserify": "^1.0.1",
     "react": "^19.1.0",
     "tailwindcss": "^4.1.10"
   }

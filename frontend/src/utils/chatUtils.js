@@ -15,6 +15,7 @@
 
 
 /**
+ * Sends a chat message to the Gemini API and returns the response.
  * Sends a message to the Gemini API and returns the response.
  * @param {string} message The message to send.
  * @returns {Promise<string>} A promise that resolves with the AI's response text.
@@ -43,6 +44,62 @@ export const sendMessageToGemini = async (message) => {
   }
 };
 
+
+// Placeholder for the backend endpoint that processes NLDs
+const NLD_PROCESSING_ENDPOINT = '/process-nld'; // This should eventually point to your Firebase Function URL or a scroll-server endpoint
+
+/**
+ * Sends a Natural Language Directive (NLD) payload to the backend for processing.
+ * @param {object} nldPayload - The NLD payload object.
+ * @returns {Promise<object>} - The JSON response from the backend.
+ */
+export const sendNLD = async (nldPayload) => {
+  try {
+    const response = await fetch(NLD_PROCESSING_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Add any necessary authentication headers here later
+      },
+      body: JSON.stringify(nldPayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Backend responded with status ${response.status}: ${errorText}`);
+    }
+
+    return await response.json();
+
+  } catch (error) {
+    console.error('Error sending NLD:', error);
+    throw error; // Re-throw the error for the calling component to handle
+  }
+};
+
+/**
+ * Sends a chat message as an NLD to the backend for AI processing and saving.
+ * The actual Gemini interaction and Firestore saving happens in the backend.
+ * @param {string} messageText - The text of the message.
+ * @param {string} conversationId - The ID of the conversation.
+ * @param {string} userId - The ID of the user sending the message.
+ * @returns {Promise<object>} - The response from the backend NLD processing.
+ */
+export const sendMessageToGemini = async (messageText, conversationId, userId) => {
+  const nldPayload = {
+    directive_type: 'SEND_MESSAGE',
+    target_system: 'AI_Processor_NLD', // Targeting the AI processor via NLD
+    conversation_id: conversationId,
+    user_id: userId,
+    payload: { // The specific data for this directive
+      message: messageText,
+    },
+  };
+
+  console.log('Sending SEND_MESSAGE NLD:', nldPayload);
+  return sendNLD(nldPayload);
+};
+
 /**
  * Saves a message to a Firestore collection.
  * @param {string} conversationId The ID of the conversation.
@@ -69,6 +126,16 @@ export const saveMessageToFirestore = async (conversationId, message) => {
     console.error("Error saving message to Firestore:", error);
     throw error;
   }
+};
+
+/**
+ * Fetches messages for a given conversationId from Firestore.
+ * @param {string} conversationId The ID of the conversation.
+ * @returns {Promise<Array<object>>} A promise that resolves with an array of message objects.
+ */
+export const fetchConversationHistory = async (conversationId) => {
+   console.warn('fetchConversationHistory needs to be updated to use sendNLD.');
+   return []; // Return empty array for now
 };
 
 /**
