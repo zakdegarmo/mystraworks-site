@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MystraWorks</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent scrolling due to absolute positioning */
+            background-color: #000; /* Ensure black background behind video */
+        }
+
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Allow clicks to pass through to overlay */
+        }
+
+        #click-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            z-index: 2; /* Above the video */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+         /* Add clay-border style */
+         .clay-border {
+            border: 2px solid #a3a3a3;
+            border-radius: 0.5rem;
+            box-shadow: 4px 4px 0px 0px #a3a3a3;
+            padding: 1rem;
+        }
+
+         /* Ensure root element fills the container */
+         #root {
+             width: 100%;
+             height: 100%;
+         }
+
+    </style>
+</head>
+<body>
+
+    <div id="player"></div>
+    <div id="click-overlay">Click anywhere to begin</div>
+
+    <div id="root"></div> <!-- Mount point for React application -->
+
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            var videoId = 'VIDEO_ID_HERE'; // Replace with your actual video ID
+             player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': 1,
+                    'controls': 0,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'iv_load_policy': 3,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'enablejsapi': 1,
+                    'origin': window.location.origin // Important for API to work
+                    // Removed loop and playlist here
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange, // Add state change handler
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Hide the overlay initially if needed, or handle through CSS display
+            // event.target.playVideo(); // Autoplay is handled by playerVars
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                console.log('Video ended');
+                // Ensure the click overlay is visible when the video ends
+                document.getElementById('click-overlay').style.display = 'flex';
+                // You might want to bring it to the front visually if not already with z-index
+            } else if (event.data === YT.PlayerState.PLAYING) {
+                 console.log('Video playing');
+                 // Hide overlay when video starts playing if it was initially visible
+                document.getElementById('click-overlay').style.display = 'none';
+            }
+        }
+
+         function onPlayerError(event) {
+            console.error('YouTube Player Error:', event.data);
+            // Optionally, hide video and show overlay on error
+             document.getElementById('player').style.display = 'none';
+             document.getElementById('click-overlay').style.display = 'flex';
+        }
+
+
+        // Add click handler to the overlay
+        document.getElementById('click-overlay').addEventListener('click', function() {
+            console.log('Overlay clicked');
+            // Add your logic here to start the application experience
+            // For example, fading out the overlay and loading the main content
+            // document.getElementById('click-overlay').style.display = 'none'; // Hide overlay after click
+            // And potentially start playing the video if not autoplaying, or navigate to the main app view
+        });
+
+        // Replace 'VIDEO_ID_HERE' with the actual YouTube video ID
+        // Example: 'dQw4w9WgXcQ' for a famous Rick Astley video
+        // You need to replace this with your intended background video
+        var videoId = 'VIDEO_ID_HERE'; // **REMEMBER TO REPLACE THIS**
+
+
+    </script>
+
+     <!-- Script tag to include the React entry point file -->
+    <script src="/frontend/src/index.js"></script>
+
+</body>
+</html>
