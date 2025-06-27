@@ -6,7 +6,9 @@
     {
       "imports": {
         "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "OrbitControls": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js"
+        "OrbitControls": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+        "firebase/app": "https://esm.sh/firebase@^10.12.2/app",
+        "firebase/auth": "https://esm.sh/firebase@^10.12.2/auth"
       }
     }
   </script>
@@ -78,7 +80,8 @@
     <p><strong>Controls:</strong></p>
     <p>&bull; Drag mouse to orbit camera.</p>
     <p>&bull; Scroll to zoom.</p>
-    <p>&bull; Press 'A' / 'D' to rotate view.</p>
+    <p>&bull; Hold 'A' / 'D' to arm Focus Sling.</p>
+    <p>&bull; Release 'A' / 'D' to sling camera.</p>
   </div>
 
   <script type="module">
@@ -87,54 +90,49 @@
 
     let scene, camera, renderer, controls;
     let triCons = [];
-    let keyRotateLeft = false;
-    let keyRotateRight = false;
+    // Flags for Focus Sling mechanic
+    let isFocusing = false;
+    let focusDirection = null; // 'left' or 'right'
+    const originalBackgroundColor = new THREE.Color(0x0a0514);
+    const focusLeftColor = new THREE.Color(0x330000); // Dark red
+    const focusRightColor = new THREE.Color(0x003300); // Dark green
+
     let initialCameraDistance;
 
     function createGradientTexture() {
         const canvas = document.createElement('canvas');
-        canvas.width = 256; // Power of 2 for texture optimization
+        canvas.width = 256; 
         canvas.height = 256;
         const context = canvas.getContext('2d');
-
-        // Mystical Gradient (bottom to top)
         const gradient = context.createLinearGradient(0, canvas.height, 0, 0);
-        gradient.addColorStop(0, '#3c1053'); // Deep dark purple (Logos-like)
-        gradient.addColorStop(0.6, '#5c1f8b'); // Mid purple
-        gradient.addColorStop(1, '#7e57c2');   // Lighter mystical purple/blue
-
+        gradient.addColorStop(0, '#3c1053'); 
+        gradient.addColorStop(0.6, '#5c1f8b'); 
+        gradient.addColorStop(1, '#7e57c2');   
         context.fillStyle = gradient;
         context.fillRect(0, 0, canvas.width, canvas.height);
-
         return new THREE.CanvasTexture(canvas);
     }
 
-
     function init() {
-      // Scene
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0a0514); // Very dark purple/near black background
+      scene.background = originalBackgroundColor.clone();
 
-      // Camera
-      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000); // Increased far plane for stars
-      camera.position.set(8, 7, 8); // Adjusted initial position for better view with larger plane
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+      camera.position.set(8, 7, 8);
       
-      // Renderer
       const canvasContainer = document.getElementById('3d-canvas-container');
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
       canvasContainer.appendChild(renderer.domElement);
 
-      // Lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); // Slightly reduced ambient, texture will add brightness
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
       scene.add(ambientLight);
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0); // Keep directional strong
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
       directionalLight.position.set(8, 15, 10);
       directionalLight.castShadow = true; 
       scene.add(directionalLight);
 
-      // OrbitControls
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
@@ -142,29 +140,27 @@
       
       initialCameraDistance = camera.position.distanceTo(controls.target);
 
-      // Central Plane with Gradient
-      const planeGeometry = new THREE.PlaneGeometry(14, 14); // Made plane larger
+      const planeGeometry = new THREE.PlaneGeometry(14, 14);
       const gradientTexture = createGradientTexture();
       const planeMaterial = new THREE.MeshStandardMaterial({ 
         map: gradientTexture, 
         side: THREE.DoubleSide, 
-        metalness: 0.2, // Lower metalness for less shine on gradient
-        roughness: 0.8  // Higher roughness for diffuse look
+        metalness: 0.2,
+        roughness: 0.8
       });
       const plane = new THREE.Mesh(planeGeometry, planeMaterial);
       plane.rotation.x = -Math.PI / 2; 
       plane.receiveShadow = true; 
       scene.add(plane);
 
-      // Tri-con Definitions
       const triConData = [
-        { name: "Academy Resource 1", geometry: new THREE.SphereGeometry(0.5, 32, 16), color: 0xe53e3e, rotationSpeed: new THREE.Vector3(0, 0.005, 0) }, // Red
-        { name: "Academy Resource 2", geometry: new THREE.TetrahedronGeometry(0.6, 0), color: 0x3182ce, rotationSpeed: new THREE.Vector3(0.003, 0.003, 0) }, // Blue (d4)
-        { name: "Academy Resource 3", geometry: new THREE.TorusKnotGeometry(0.4, 0.12, 100, 12), color: 0x38a169, rotationSpeed: new THREE.Vector3(0, -0.004, 0.002) }, // Green
-        { name: "Academy Resource 4", geometry: new THREE.SphereGeometry(0.65, 32, 32), color: 0xdd6b20, rotationSpeed: new THREE.Vector3(0.006, 0, 0) } // Orange/Yellow Sphere
+        { name: "Academy Resource 1", geometry: new THREE.SphereGeometry(0.5, 32, 16), color: 0xe53e3e, rotationSpeed: new THREE.Vector3(0, 0.005, 0) },
+        { name: "Academy Resource 2", geometry: new THREE.TetrahedronGeometry(0.6, 0), color: 0x3182ce, rotationSpeed: new THREE.Vector3(0.003, 0.003, 0) },
+        { name: "Academy Resource 3", geometry: new THREE.TorusKnotGeometry(0.4, 0.12, 100, 12), color: 0x38a169, rotationSpeed: new THREE.Vector3(0, -0.004, 0.002) },
+        { name: "Academy Resource 4", geometry: new THREE.SphereGeometry(0.65, 32, 32), color: 0xdd6b20, rotationSpeed: new THREE.Vector3(0.006, 0, 0) }
       ];
       
-      const radius = 3.5; // Increased radius for larger plane
+      const radius = 3.5;
       const numTriCons = triConData.length;
       triConData.forEach((data, index) => {
         const angle = (index / numTriCons) * Math.PI * 2;
@@ -173,7 +169,7 @@
         
         const material = new THREE.MeshStandardMaterial({ color: data.color, metalness: 0.4, roughness: 0.5 });
         const mesh = new THREE.Mesh(data.geometry, material);
-        mesh.position.set(x, 0.7, z); // Positioned on the circle, slightly above the plane
+        mesh.position.set(x, 0.7, z);
         mesh.userData.name = data.name;
         mesh.userData.rotationSpeed = data.rotationSpeed;
         mesh.castShadow = true; 
@@ -181,11 +177,10 @@
         triCons.push(mesh);
       });
 
-      // Starfield
       const starGeometry = new THREE.BufferGeometry();
       const starVertices = [];
-      for (let i = 0; i < 15000; i++) { // Increased star count
-        const x = THREE.MathUtils.randFloatSpread(1800); // Spread stars wider
+      for (let i = 0; i < 15000; i++) {
+        const x = THREE.MathUtils.randFloatSpread(1800);
         const y = THREE.MathUtils.randFloatSpread(1800);
         const z = THREE.MathUtils.randFloatSpread(1800);
         starVertices.push(x, y, z);
@@ -193,10 +188,10 @@
       starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
       const starMaterial = new THREE.PointsMaterial({ 
           color: 0xffffff, 
-          size: 0.8, // Slightly larger stars
+          size: 0.8,
           transparent: true, 
           opacity: 0.7,
-          blending: THREE.AdditiveBlending // Brighter stars
+          blending: THREE.AdditiveBlending
         });
       const stars = new THREE.Points(starGeometry, starMaterial);
       scene.add(stars);
@@ -204,11 +199,10 @@
       updateZoomConstraints(true); 
       controls.update(); 
 
-      // Event Listeners
       window.addEventListener('resize', onWindowResize, false);
       window.addEventListener('keydown', onKeyDown, false);
       window.addEventListener('keyup', onKeyUp, false);
-
+      console.log("Academy Initialized. Focus Sling mechanic active.");
       animate();
     }
     
@@ -218,26 +212,18 @@
 
     function updateZoomConstraints(isInitialSetup) {
         if (!controls || !camera) return;
-
-        const triConCircleDiameter = 7.0; // Radius 3.5 * 2
+        const triConCircleDiameter = 7.0;
         const largestTriConDiameter = 1.3; 
-        const padding = 1.0; // Visual padding
-        
+        const padding = 1.0;
         const requiredHorizontalSpan = triConCircleDiameter + largestTriConDiameter + padding;
-
         const verticalFOV = THREE.MathUtils.degToRad(camera.fov);
         const horizontalFOV = getHorizontalFOV(verticalFOV, camera.aspect);
-        
         let minCalculatedDistance = requiredHorizontalSpan / (2 * Math.tan(horizontalFOV / 2));
-        
-        controls.minDistance = Math.max(2.0, minCalculatedDistance); // Increased min distance slightly
-
+        controls.minDistance = Math.max(2.0, minCalculatedDistance);
         if (isInitialSetup) {
-            controls.maxDistance = initialCameraDistance * 1.5; // Allow a bit more zoom out
+            controls.maxDistance = initialCameraDistance * 1.5;
         }
-        // console.log(`Zoom constraints: Min: ${controls.minDistance.toFixed(2)}, Max: ${controls.maxDistance.toFixed(2)}`);
     }
-
 
     function onWindowResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -247,82 +233,75 @@
     }
 
     function onKeyDown(event) {
-        switch(event.key.toLowerCase()) {
-            case 'a':
-                event.preventDefault(); 
-                // console.log("Key 'A' pressed - attempting to rotate left.");
-                keyRotateLeft = true;
-                break;
-            case 'd':
-                event.preventDefault(); 
-                // console.log("Key 'D' pressed - attempting to rotate right.");
-                keyRotateRight = true;
-                break;
+        const key = event.key.toLowerCase();
+        if (key === 'a' || key === 'd') {
+            event.preventDefault();
+            if (isFocusing) return; // Already focusing, do nothing
+
+            isFocusing = true;
+            focusDirection = (key === 'a') ? 'left' : 'right';
+            controls.enabled = false; // Disable controls during focus
+            scene.background = (focusDirection === 'left') ? focusLeftColor.clone() : focusRightColor.clone();
+            console.log("Focus Sling ARMED:", focusDirection);
         }
     }
 
     function onKeyUp(event) {
-        switch(event.key.toLowerCase()) {
-            case 'a':
-                keyRotateLeft = false;
-                // console.log("Key 'A' released.");
-                break;
-            case 'd':
-                keyRotateRight = false;
-                // console.log("Key 'D' released.");
-                break;
+        const key = event.key.toLowerCase();
+        if ((key === 'a' && focusDirection === 'left') || (key === 'd' && focusDirection === 'right')) {
+            event.preventDefault();
+            if (!isFocusing) return; // Not focusing, nothing to release
+
+            controls.enabled = true; // Re-enable controls
+            const slingAngle = Math.PI / 4; // 45-degree sling
+
+            if (focusDirection === 'left') {
+                controls.rotateLeft(slingAngle);
+                console.log("Focus Sling: Rotated Left");
+            } else if (focusDirection === 'right') {
+                controls.rotateRight(slingAngle);
+                console.log("Focus Sling: Rotated Right");
+            }
+            
+            // controls.update(); // Ensure the rotation is applied/starts animating if damping
+
+            scene.background = originalBackgroundColor.clone(); // Revert background
+            console.log("Focus Sling RELEASED:", focusDirection);
+            
+            isFocusing = false;
+            focusDirection = null;
         }
     }
 
     function animate() {
       requestAnimationFrame(animate);
-
-      const deltaRotation = 0.015; 
-      if (keyRotateLeft) {
-        controls.rotateLeft(deltaRotation);
-      }
-      if (keyRotateRight) {
-        controls.rotateRight(deltaRotation);
-      }
-
-      triCons.forEach(triCon => {
-        if (triCon.userData.rotationSpeed) {
-            // Only rotate if not being affected by key rotation or mouse drag (optional, for smoother feel)
-            // For now, let them always rotate
-            triCon.rotation.x += triCon.userData.rotationSpeed.x;
-            triCon.rotation.y += triCon.userData.rotationSpeed.y;
-            triCon.rotation.z += triCon.userData.rotationSpeed.z;
-        }
+      
+      // Animate TriCons (even during focus, or maybe slow them down)
+      triCons.forEach(tc => {
+          if (tc.userData.rotationSpeed) {
+              let speedFactor = isFocusing ? 0.2 : 1; // Slow down triCons during focus
+              tc.rotation.x += tc.userData.rotationSpeed.x * speedFactor;
+              tc.rotation.y += tc.userData.rotationSpeed.y * speedFactor;
+              tc.rotation.z += tc.userData.rotationSpeed.z * speedFactor;
+          }
       });
 
-      controls.update(); 
+      // OrbitControls update needs to be called if damping is enabled,
+      // or if any programmatic changes to camera (like autoRotate or manual rotateLeft/Right)
+      // need to be smoothed out.
+      // If controls.enabled is false, update() typically won't process user input
+      // but might still be needed for damping from programmatic changes.
+      // However, since we re-enable then rotate, it should be fine.
+      if (controls.enabled) {
+        controls.update(); 
+      }
+      
       renderer.render(scene, camera);
     }
 
     init();
   </script>
-
-    <!-- Firebase App (Core) - Always required -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <!-- Firebase Authentication - For user login/registration -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    
-    <script>
-      const firebaseConfig = {
-        apiKey: "AIzaSyDr-NIzZaz8vXZ8umXk_45MlNp6HoBXwkQ",
-        authDomain: "mystraos.firebaseapp.com",
-        projectId: "mystraos",
-        storageBucket: "mystraos.firebasestorage.app",
-        messagingSenderId: "912155809484",
-        appId: "1:912155809484:web:deb84563d00da8fed7d469",
-        measurementId: "G-4CZ7450X8J"
-      };
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth(); 
-      console.log("Firebase Initialized & Auth Service Ready on Academy!");
-    </script>
-
-<script src="js/logos-companion.js"></script>
+<script type="module" src="js/logos-companion.js"></script>
 <logos-companion></logos-companion>
 </body>
 </html>
